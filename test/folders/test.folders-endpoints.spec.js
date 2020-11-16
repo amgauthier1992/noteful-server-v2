@@ -1,6 +1,6 @@
 const knex = require('knex');
 const supertest = require('supertest');
-const app = require('../src/app')
+const app = require('../../src/app')
 const { makeTestDataArray } = require('./example.fixtures') 
 
 describe(`Test Suite`, function() {

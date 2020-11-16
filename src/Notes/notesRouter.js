@@ -11,7 +11,7 @@ const serializeNote = note => ({
   id: note.id,
   name: xss(note.name),
   content: xss(note.content),
-  folderId: note.folderId,
+  folderid: note.folderid,
   modified: note.modified
 })
 
@@ -32,7 +32,7 @@ notesRouter
     const newNote = { name, content, folderid }
     const knexInstance = req.app.get('db')
 
-    for (const field of ['name', 'content', 'folderId']) {
+    for (const field of ['name', 'content', 'folderid']) {
         if (!newNote[field]) {
           logger.error(`Note ${field} is required`)
           return res.status(400).send({
@@ -47,11 +47,11 @@ notesRouter
 
     NotesService.insertNote(knexInstance, newNote)
       .then(note => {
-        logger.info(`Note with id ${note.id} and folderId ${note.folderId} created.`)
+        logger.info(`Note with id ${note.id} and folderid ${note.folderid} created.`)
         res
           .status(201)
           .location(`/notes/${note.id}`) 
-          .json(serializeBookmark(note))
+          .json(serializeNote(note))
       })
       .catch(next)
   })
@@ -92,8 +92,8 @@ notesRouter
   })
 
   .patch(bodyParser, (req, res, next) => {
-    const { name, content } = req.body
-    const noteToUpdate = { name, content }
+    const { name, content, folderid } = req.body
+    const noteToUpdate = { name, content, folderid }
     const knexInstance = req.app.get('db')
     const { note_id } = req.params 
 
@@ -102,7 +102,7 @@ notesRouter
       logger.error(`Invalid update without required fields`)
       return res.status(400).json({
         error: {
-          message: `Request body must contain either 'name' or 'content'`
+          message: `Request body must contain either 'name', 'content', and 'folderid'`
         }
       })
     }
@@ -111,7 +111,7 @@ notesRouter
 
     if (error) return res.status(400).send(error)
 
-    BookmarksService.updateNote(knexInstance, note_id, noteToUpdate)
+    NotesService.updateNote(knexInstance, note_id, noteToUpdate)
       .then(updatedRow => {
         // console.log(updatedRow)
         res.status(200).json(updatedRow)

@@ -2,7 +2,7 @@ const logger = require('../logger')
 
 const NO_ERRORS = null
 
-function getNoteValidationError({ name, content, folderId, modified }) {
+function getNoteValidationError({ name, content, folderid }) {
   if(!name) {
     logger.error(`Note name must be provided`)
     return {
@@ -21,7 +21,7 @@ function getNoteValidationError({ name, content, folderId, modified }) {
     }
   }
 
-  if(!folderId) {
+  if(!folderid) {
     logger.error(`Note must be assigned to an existing folder`)
     return {
       error: {
@@ -29,8 +29,6 @@ function getNoteValidationError({ name, content, folderId, modified }) {
       }
     }
   }
-
-//   if(!modified) {}
 
   return NO_ERRORS;
 }
