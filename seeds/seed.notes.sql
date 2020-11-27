@@ -20,4 +20,4 @@ SELECT n.name, n.content, f.id -- i have this data, where am i gonna put it?
 FROM folders f
 INNER JOIN
 	notesData n ON 
-	f.name = n.folderName
+	f.name = n.folderName --matching to the name of the folder we are assigning to, to the name of the folder that exists. where the names match, give me access to the id

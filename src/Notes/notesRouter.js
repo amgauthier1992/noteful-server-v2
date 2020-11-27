@@ -2,7 +2,6 @@ const express = require('express')
 const xss = require('xss')
 const logger = require('../logger')
 const NotesService = require('./NotesService')
-const { getNoteValidationError } = require('./noteValidator')
 
 const notesRouter = express.Router()
 const bodyParser = express.json()
@@ -40,10 +39,6 @@ notesRouter
           })
         }
     }
-
-    const error = getNoteValidationError(newNote);
-
-    if (error) return res.status(400).send(error);
 
     NotesService.insertNote(knexInstance, newNote)
       .then(note => {
@@ -97,23 +92,19 @@ notesRouter
     const knexInstance = req.app.get('db')
     const { note_id } = req.params 
 
-    const numberOfValues = Object.values(noteToUpdate).filter(Boolean).length //filter(boolean) removes undefined, empty strings for fields not sent if they arent being updated
+    //filter(boolean) removes undefined, empty strings for fields not sent if they arent being updated
+    const numberOfValues = Object.values(noteToUpdate).filter(Boolean).length
     if (numberOfValues === 0) {
       logger.error(`Invalid update without required fields`)
       return res.status(400).json({
         error: {
-          message: `Request body must contain either 'name', 'content', and 'folderid'`
+          message: `Request body must contain either 'name', 'content', or 'folderid'`
         }
       })
     }
 
-    const error = getNoteValidationError(noteToUpdate)
-
-    if (error) return res.status(400).send(error)
-
     NotesService.updateNote(knexInstance, note_id, noteToUpdate)
       .then(updatedRow => {
-        // console.log(updatedRow)
         res.status(200).json(updatedRow)
       })
       .catch(next)

@@ -20,6 +20,6 @@ app.use(helmet());
 app.use(validateBearerToken)
 app.use(foldersRouter)
 app.use(notesRouter)
-app.use(errorHandler) //use error handler middleware last
+app.use(errorHandler)
 
 module.exports = app;

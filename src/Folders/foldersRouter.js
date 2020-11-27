@@ -2,7 +2,6 @@ const express = require('express')
 const xss = require('xss')
 const logger = require('../logger')
 const FoldersService = require('./FoldersService')
-const { getFolderValidationError } = require('./folderValidator')
 
 const foldersRouter = express.Router()
 const bodyParser = express.json()
@@ -30,17 +29,13 @@ foldersRouter
     const knexInstance = req.app.get('db')
 
     for (const field of ['name']) {
-        if (!newFolder[field]) {
-          logger.error(`Folder ${field} is required`)
-          return res.status(400).send({
-            error: { message: `Folder '${field}' is required` }
-          })
-        }
+      if (!newFolder[field]) {
+        logger.error(`Folder ${field} is required`)
+        return res.status(400).send({
+          error: { message: `Folder '${field}' is required` }
+        })
+      }
     }
-
-    const error = getFolderValidationError(newFolder);
-
-    if (error) return res.status(400).send(error);
 
     FoldersService.insertFolder(knexInstance, newFolder)
       .then(folder => {
@@ -94,7 +89,8 @@ foldersRouter
     const knexInstance = req.app.get('db')
     const { folder_id } = req.params 
 
-    const numberOfValues = Object.values(folderToUpdate).filter(Boolean).length //filter(boolean) removes undefined, empty strings for fields not sent if they arent being updated
+    //filter(boolean) removes undefined, empty strings for fields not sent if they arent being updated
+    const numberOfValues = Object.values(folderToUpdate).filter(Boolean).length
     if (numberOfValues === 0) {
       logger.error(`Invalid update without required field`)
       return res.status(400).json({
@@ -104,13 +100,8 @@ foldersRouter
       })
     }
 
-    const error = getFolderValidationError(folderToUpdate)
-
-    if (error) return res.status(400).send(error)
-
     FoldersService.updateFolder(knexInstance, folder_id, folderToUpdate)
       .then(updatedRow => {
-        // console.log(updatedRow)
         res.status(200).json(updatedRow)
       })
       .catch(next)
